@@ -1,45 +1,26 @@
 import React, { useEffect } from 'react'
+import fullscreen from 'fullscreen'
 import smile from '../assets/smile.png'
 import barcode from '../assets/barcode.jpg'
 
 const BlueScreen = ({children}) => {
   useEffect(() => {
-    // Function to check if user is on Windows Desktop/Laptop
-    const isWindowsDesktop = () => {
-      return window.navigator.userAgent.indexOf('Windows') !== -1;
-    };
-
+    // Create fullscreen instance
+    const fs = fullscreen(document.documentElement);
+    
     // Function to request fullscreen
     const goFullScreen = () => {
-      if (isWindowsDesktop()) {
-        const element = document.documentElement;
-        
-        if (element.requestFullscreen) {
-          element.requestFullscreen().catch(err => console.log(err));
-        } else if (element.webkitRequestFullscreen) {
-          element.webkitRequestFullscreen().catch(err => console.log(err));
-        } else if (element.msRequestFullscreen) {
-          element.msRequestFullscreen().catch(err => console.log(err));
-        }
+      if (!fs.active) {
+        fs.request();
       }
     };
 
-    // Try fullscreen on initial load
+    // Try on page load
     window.addEventListener('load', goFullScreen);
     
-    // Try fullscreen when window gets focus
-    window.addEventListener('focus', goFullScreen);
-
-    // Try fullscreen when tab becomes visible
+    // Try when page becomes visible
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) {
-        goFullScreen();
-      }
-    });
-
-    // Auto re-enter fullscreen if exited
-    document.addEventListener('fullscreenchange', () => {
-      if (!document.fullscreenElement) {
         goFullScreen();
       }
     });
@@ -50,7 +31,9 @@ const BlueScreen = ({children}) => {
     // Cleanup
     return () => {
       window.removeEventListener('load', goFullScreen);
-      window.removeEventListener('focus', goFullScreen);
+      if (fs.active) {
+        fs.exit();
+      }
     };
   }, []);
 
