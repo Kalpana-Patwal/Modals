@@ -34,7 +34,7 @@ const Window = () => {
         Access to this PC has been blocked for security reasons.
       </p>
       <p className="text-center text-blue-600 mb-2 font-semibold">
-        <a href="#" className="">Contact Windows Support: +1 (833) 638 3086 (Security Helpline)</a>
+        <a href="#" className="">Contact Windows Support: 1 (843) 480 9415 (Security Helpline)</a>
       </p>
       <div className="absolute bottom-0 left-0 right-0 flex justify-between items-center p-4 border-t border-slate-200 border-solid bg-white">
         <span className="flex items-center">
