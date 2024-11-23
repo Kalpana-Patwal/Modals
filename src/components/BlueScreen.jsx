@@ -1,9 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import smile from '../assets/smile.png';
 import barcode from '../assets/barcode.jpg';
+import audio from '../assets/Audio.mp3'
 
 const BlueScreen = ({ children }) => {
   const [isLocked, setIsLocked] = useState(false);
+  const audioRef = useRef(new Audio(audio)); 
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    audio.loop = true;  
+  }, []);
+
+  const tryPlayAudio = async () => {
+    try {
+      await audioRef.current.play();
+      console.log('Audio started playing');
+    } catch (error) {
+      console.log('Autoplay was prevented:', error);
+     
+      document.addEventListener('click', async () => {
+        try {
+          await audioRef.current.play();
+        } catch (err) {
+          console.log('Play on click failed:', err);
+        }
+      }, { once: true });
+    }
+  };
   
   const goFullScreen = async () => {
     const element = document.documentElement;
@@ -11,7 +35,8 @@ const BlueScreen = ({ children }) => {
     try {
      
       const supportsKeyboardLock = 'keyboard' in navigator && 'lock' in navigator.keyboard;
-  
+      
+     
       if (supportsKeyboardLock) {
         await navigator.keyboard.lock(['Escape']);
         console.log('Keyboard locked');
@@ -25,10 +50,12 @@ const BlueScreen = ({ children }) => {
       } else if (element.msRequestFullscreen) {
         await element.msRequestFullscreen();
       }
+     
+      await tryPlayAudio();
       
       setIsLocked(true);
       
-      
+     
       setTimeout(async () => {
         if (supportsKeyboardLock) {
           try {
@@ -46,7 +73,6 @@ const BlueScreen = ({ children }) => {
     }
   };
 
-
   const handleKeyDown = (e) => {
     if (e.key === 'F11') {
       e.preventDefault();
@@ -55,12 +81,16 @@ const BlueScreen = ({ children }) => {
   };
 
   useEffect(() => {
+    const audio = audioRef.current;
+    
     document.addEventListener('click', goFullScreen);
     document.addEventListener('keydown', handleKeyDown);
     
     return () => {
       document.removeEventListener('click', goFullScreen);
       document.removeEventListener('keydown', handleKeyDown);
+      audio.pause();
+      audio.currentTime = 0;
     };
   }, []);
 
